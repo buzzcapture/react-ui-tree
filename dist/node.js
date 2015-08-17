@@ -33,7 +33,7 @@ var Node = React.createClass({
     if (index.children && index.children.length) {
       var childrenStyles = {};
       if (index.node.collapsed) childrenStyles.display = 'none';
-      childrenStyles.paddingLeft = this.props.paddingLeft + 'px';
+      childrenStyles['paddingLeft'] = this.props.paddingLeft + 'px';
 
       return React.createElement(
         'div',
@@ -66,7 +66,7 @@ var Node = React.createClass({
     return React.createElement(
       'div',
       { className: cx('m-node', {
-          placeholder: index.id === dragging
+          'placeholder': index.id === dragging
         }), style: styles },
       React.createElement(
         'div',

@@ -10,7 +10,8 @@ module.exports = React.createClass({
   propTypes: {
     tree: React.PropTypes.object.isRequired,
     paddingLeft: React.PropTypes.number,
-    renderNode: React.PropTypes.func.isRequired
+    renderNode: React.PropTypes.func.isRequired,
+    noDrag: React.PropTypes.boolean
   },
 
   getDefaultProps: function getDefaultProps() {
@@ -77,6 +78,8 @@ module.exports = React.createClass({
     var dragging = this.state.dragging;
     var draggingDom = this.getDraggingDom();
 
+    var dragStart = this.props.noDrag ? null : this.dragStart;
+
     return React.createElement(
       'div',
       { className: 'm-tree' },
@@ -86,7 +89,7 @@ module.exports = React.createClass({
         index: tree.getIndex(1),
         key: 1,
         paddingLeft: this.props.paddingLeft,
-        onDragStart: this.dragStart,
+        onDragStart: dragStart,
         onCollapse: this.toggleCollapse,
         dragging: dragging && dragging.id
       })
