@@ -11,7 +11,7 @@ module.exports = React.createClass({
     tree: React.PropTypes.object.isRequired,
     paddingLeft: React.PropTypes.number,
     renderNode: React.PropTypes.func.isRequired,
-    noDrag: React.PropTypes.boolean
+    noDrag: React.PropTypes.bool
   },
 
   getDefaultProps: function getDefaultProps() {
