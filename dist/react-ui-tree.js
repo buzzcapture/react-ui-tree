@@ -11,12 +11,14 @@ module.exports = React.createClass({
     tree: React.PropTypes.object.isRequired,
     paddingLeft: React.PropTypes.number,
     renderNode: React.PropTypes.func.isRequired,
-    noDrag: React.PropTypes.bool
+    noDrag: React.PropTypes.bool,
+    noDragClassNames: React.PropTypes.array
   },
 
   getDefaultProps: function getDefaultProps() {
     return {
-      paddingLeft: 20
+      paddingLeft: 20,
+      noDragClassNames: []
     };
   },
 
@@ -87,23 +89,51 @@ module.exports = React.createClass({
     }));
   },
 
+  getClassNamesRecursive: function (node) {
+    var foundAll = false, 
+        result = [node.className || ""], 
+        currentNode = node.parentNode;
+
+    while (!foundAll) {
+      if (currentNode.className.match(/m-tree/ig)) {
+        foundAll = true;
+      } else {
+        result.push(currentNode.className || "");
+        currentNode = currentNode.parentNode;
+      }
+    }
+
+    return result.join(" ");
+  },
+
   dragStart: function dragStart(id, dom, e) {
-    this.dragging = {
-      id: id,
-      w: dom.offsetWidth,
-      h: dom.offsetHeight,
-      x: dom.offsetLeft,
-      y: dom.offsetTop
-    };
+    var parentClassNames, 
+        mayDrag, 
+        noDragRx;
 
-    this._startX = dom.offsetLeft;
-    this._startY = dom.offsetTop;
-    this._offsetX = e.clientX;
-    this._offsetY = e.clientY;
-    this._start = true;
+    noDragRx = new RegExp(this.props.noDragClassNames.join("|"), "gi");
+    parentClassNames = this.getClassNamesRecursive(e.target);
+    mayDrag = !parentClassNames.match(noDragRx);
 
-    window.addEventListener('mousemove', this.drag);
-    window.addEventListener('mouseup', this.dragEnd);
+    // As we do not want buttons to register drag events...
+    if (mayDrag) {
+      this.dragging = {
+        id: id,
+        w: dom.offsetWidth,
+        h: dom.offsetHeight,
+        x: dom.offsetLeft,
+        y: dom.offsetTop
+      };
+
+      this._startX = dom.offsetLeft;
+      this._startY = dom.offsetTop;
+      this._offsetX = e.clientX;
+      this._offsetY = e.clientY;
+      this._start = true;
+
+      window.addEventListener('mousemove', this.drag);
+      window.addEventListener('mouseup', this.dragEnd);
+    }
   },
 
   // oh
