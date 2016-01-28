@@ -1,5 +1,3 @@
-'use strict';
-
 var Tree = require('js-tree');
 var proto = Tree.prototype;
 

@@ -1,5 +1,3 @@
-'use strict';
-
 var React = require('react');
 var Tree = require('./tree');
 var Node = require('./node');
@@ -90,8 +88,8 @@ module.exports = React.createClass({
   },
 
   getClassNamesRecursive: function (node) {
-    var foundAll = false, 
-        result = [node.className || ""], 
+    var foundAll = false,
+        result = [node.className || ""],
         currentNode = node.parentNode;
 
     while (!foundAll) {
@@ -107,9 +105,7 @@ module.exports = React.createClass({
   },
 
   dragStart: function dragStart(id, dom, e) {
-    var parentClassNames, 
-        mayDrag, 
-        noDragRx;
+    var parentClassNames, mayDrag, noDragRx;
 
     noDragRx = new RegExp(this.props.noDragClassNames.join("|"), "gi");
     parentClassNames = this.getClassNamesRecursive(e.target);
