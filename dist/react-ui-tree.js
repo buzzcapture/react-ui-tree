@@ -25,11 +25,20 @@ module.exports = React.createClass({
   },
 
   componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-    if (!this._updated) this.setState(this.init(nextProps));else this._updated = false;
+    if (!this._updated) {
+      this.setState(this.init(nextProps));
+    } else {
+      this._updated = false;
+    }
+  },
+
+  shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
+    return !nextState.dragging.id;
   },
 
   init: function init(props) {
     var tree = new Tree(props.tree);
+
     tree.isNodeCollapsed = props.isNodeCollapsed;
     tree.renderNode = props.renderNode;
     tree.changeNodeCollapsed = props.changeNodeCollapsed;
@@ -67,24 +76,6 @@ module.exports = React.createClass({
     }
 
     return null;
-  },
-
-  render: function render() {
-    var tree = this.state.tree;
-    var dragging = this.state.dragging;
-    var draggingDom = this.getDraggingDom();
-
-    var dragStart = this.props.noDrag ? null : this.dragStart;
-
-    return React.createElement('div', { className: 'm-tree' }, draggingDom, React.createElement(Node, {
-      tree: tree,
-      index: tree.getIndex(1),
-      key: 1,
-      paddingLeft: this.props.paddingLeft,
-      onDragStart: dragStart,
-      onCollapse: this.toggleCollapse,
-      dragging: dragging && dragging.id
-    }));
   },
 
   getClassNamesRecursive: function (node) {
@@ -127,17 +118,21 @@ module.exports = React.createClass({
       this._offsetY = e.clientY;
       this._start = true;
 
-      window.addEventListener('mousemove', this.drag);
-      window.addEventListener('mouseup', this.dragEnd);
+      this.boundDragHandler = this.drag.bind(this, dom);
+      this.boundDragEndHandler = this.dragEnd.bind(this, dom);
+
+      window.addEventListener('mousemove', this.boundDragHandler);
+      window.addEventListener('mouseup', this.boundDragEndHandler);
     }
   },
 
   // oh
-  drag: function drag(e) {
+  drag: function drag(dragElement, evt) {
     if (this._start) {
       this.setState({
         dragging: this.dragging
       });
+
       this._start = false;
     }
 
@@ -154,9 +149,10 @@ module.exports = React.createClass({
     var _offsetY = this._offsetY;
 
     var pos = {
-      x: _startX + e.clientX - _offsetX,
-      y: _startY + e.clientY - _offsetY
+      x: _startX + evt.clientX - _offsetX,
+      y: _startY + evt.clientY - _offsetY
     };
+
     dragging.x = pos.x;
     dragging.y = pos.y;
 
@@ -184,11 +180,13 @@ module.exports = React.createClass({
     if (diffY < 0) {
       // up
       var above = tree.getNodeByTop(index.top - 1);
+
       newIndex = tree.move(index.id, above.id, 'before');
     } else if (diffY > dragging.h) {
       // down
       if (index.next) {
         var below = tree.getIndex(index.next);
+
         if (below.children && below.children.length && !below.node.collapsed) {
           newIndex = tree.move(index.id, index.next, 'prepend');
         } else {
@@ -196,6 +194,7 @@ module.exports = React.createClass({
         }
       } else {
         var below = tree.getNodeByTop(index.top + index.height);
+
         if (below && below.parent !== index.id) {
           if (below.children && below.children.length) {
             newIndex = tree.move(index.id, below.id, 'prepend');
@@ -211,10 +210,63 @@ module.exports = React.createClass({
       dragging.id = newIndex.id;
     }
 
+    this.updateDragElement(dragElement, {
+      evt: evt,
+      lastIndex: index,
+      newIndex: newIndex,
+      pos: pos
+    });
+
     this.setState({
       tree: tree,
       dragging: dragging
     });
+  },
+
+  updateDragElement: function updateDragElement(dragElement, options) {
+    var listNode, containerNode, nodeAtNewIndex, placeholderNode;
+
+    containerNode = dragElement.parentNode;
+    placeholderNode = this.createPlaceholderNode(containerNode);
+
+    if (options.newIndex) {
+      containerNode.classList.add("hidden-until-drag-end");
+      listNode = containerNode.parentNode;
+      nodeAtNewIndex = listNode.childNodes[options.newIndex.next];
+      listNode.insertBefore(placeholderNode, nodeAtNewIndex);
+    }
+  },
+
+  createPlaceholderNode: function createPlaceholderNode(node) {
+    var placeholderNode;
+
+    function unReact() {
+      for (var i = 0; i < arguments.length; i++) {
+        if (arguments[i]) {
+          if (typeof arguments[i].removeAttribute === "function") {
+            arguments[i].removeAttribute("data-reactid");
+          }
+          unReact.apply(null, Array.prototype.slice.apply(arguments[i].childNodes));
+        }
+      }
+    }
+
+    if (!this._placeholderNode) {
+      placeholderNode = node.cloneNode(true);
+      placeholderNode.classList.add("placeholder");
+
+      unReact(placeholderNode);
+      this._placeholderNode = placeholderNode;
+    }
+
+    return this._placeholderNode;
+  },
+
+  clearPlaceholderNode: function clearPlaceholderNode() {
+    if (this._placeholderNode) {
+      this._placeholderNode.parentNode.removeChild(this._placeholderNode);
+      this._placeholderNode = null;
+    }
   },
 
   dragEnd: function dragEnd() {
@@ -227,8 +279,15 @@ module.exports = React.createClass({
         previousNode = null,
         parentNode = null;
 
-    if (previousIndex) previousNode = previousIndex.node;
-    if (parentIndex) parentNode = parentIndex.node;
+    if (previousIndex) {
+      previousNode = previousIndex.node;
+    }
+
+    if (parentIndex) {
+      parentNode = parentIndex.node;
+    }
+
+    this.clearPlaceholderNode();
 
     this.setState({
       dragging: {
@@ -241,13 +300,16 @@ module.exports = React.createClass({
     });
 
     this.change(parentNode, previousNode, node);
-    window.removeEventListener('mousemove', this.drag);
-    window.removeEventListener('mouseup', this.dragEnd);
+    window.removeEventListener('mousemove', this.boundDragHandler);
+    window.removeEventListener('mouseup', this.boundDragEndHandler);
   },
 
   change: function change(parentNode, previousNode, node) {
     this._updated = true;
-    if (this.props.onChange) this.props.onChange(parentNode, previousNode, node);
+
+    if (this.props.onChange) {
+      this.props.onChange(parentNode, previousNode, node);
+    }
   },
 
   toggleCollapse: function toggleCollapse(nodeId) {
@@ -262,5 +324,23 @@ module.exports = React.createClass({
     });
 
     this.change(tree);
+  },
+
+  render: function render() {
+    var tree = this.state.tree;
+    var dragging = this.state.dragging;
+    var draggingDom = this.getDraggingDom();
+
+    var dragStart = this.props.noDrag ? null : this.dragStart;
+
+    return React.createElement('div', { className: 'm-tree' }, draggingDom, React.createElement(Node, {
+      tree: tree,
+      index: tree.getIndex(1),
+      key: 1,
+      paddingLeft: this.props.paddingLeft,
+      onDragStart: dragStart,
+      onCollapse: this.toggleCollapse,
+      dragging: dragging && dragging.id
+    }));
   }
 });

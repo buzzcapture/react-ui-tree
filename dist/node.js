@@ -69,7 +69,8 @@ var Node = React.createClass({
         'div',
         { className: 'inner',
           ref: 'inner',
-          onMouseDown: this.handleMouseDown },
+          onMouseDown: this.handleMouseDown,
+          onMouseUp: this.handleMouseUp },
         this.renderCollapse(),
         tree.renderNode(node)
       ),
@@ -90,9 +91,20 @@ var Node = React.createClass({
   handleMouseDown(e) {
     var nodeId = this.props.index.id;
     var dom = this.refs.inner.getDOMNode();
+    var evt = Object.assign({}, e);
 
-    if (this.props.onDragStart) {
-      this.props.onDragStart(nodeId, dom, e);
+    this.dragDelay = setTimeout(function () {
+      if (this.props.onDragStart) {
+        this.props.onDragStart(nodeId, dom, evt);
+      }
+
+      this.dragDelay = null;
+    }.bind(this), 200);
+  },
+
+  handleMouseUp() {
+    if (this.dragDelay) {
+      clearTimeout(this.dragDelay);
     }
   }
 });
