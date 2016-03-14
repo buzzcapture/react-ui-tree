@@ -4,11 +4,11 @@ var React = require('react');
 var Node = React.createClass({
   displayName: 'UITreeNode',
 
-  componentDidMount() {
+  componentDidMount: function() {
     this.props.registerNode && this.props.registerNode(this);
   },
 
-  renderCollapse() {
+  renderCollapse: function() {
     var index = this.props.index;
 
     if (index.children && index.children.length) {
@@ -24,7 +24,7 @@ var Node = React.createClass({
     return null;
   },
 
-  renderChildren() {
+  renderChildren: function() {
     var index = this.props.index;
     var tree = this.props.tree;
     var dragging = this.props.dragging;
@@ -41,7 +41,7 @@ var Node = React.createClass({
         'div',
         { className: 'children',
           style: childrenStyles },
-        index.children.map(child => {
+        index.children.map(function(child) {
           var childIndex = tree.getIndex(child);
 
           return React.createElement(Node, { tree: tree,
@@ -59,7 +59,7 @@ var Node = React.createClass({
     return null;
   },
 
-  render() {
+  render: function() {
     var tree = this.props.tree;
     var index = this.props.index;
     var dragging = this.props.dragging;
@@ -83,7 +83,7 @@ var Node = React.createClass({
     );
   },
 
-  handleCollapse(e) {
+  handleCollapse: function(e) {
     var nodeId = this.props.index.id;
 
     e.stopPropagation();
@@ -93,7 +93,7 @@ var Node = React.createClass({
     }
   },
 
-  handleMouseDown(e) {
+  handleMouseDown: function(e) {
     var nodeId = this.props.index.id;
     var dom = this.refs.inner.getDOMNode();
     var evt = Object.assign({}, e);
@@ -107,7 +107,7 @@ var Node = React.createClass({
     }.bind(this), 200);
   },
 
-  handleMouseUp() {
+  handleMouseUp: function() {
     if (this.dragDelay) {
       clearTimeout(this.dragDelay);
     }
