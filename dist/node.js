@@ -41,7 +41,7 @@ var Node = React.createClass({
         'div',
         { className: 'children',
           style: childrenStyles },
-        index.children.map(child => {
+        index.children.map((child) => {
           var childIndex = tree.getIndex(child);
 
           return React.createElement(Node, { tree: tree,
