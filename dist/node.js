@@ -29,6 +29,7 @@ var Node = React.createClass({
     var tree = this.props.tree;
     var dragging = this.props.dragging;
     var childrenStyles = {};
+    let _this = this;
 
     if (index.children && index.children.length) {
       if (index.node.collapsed) {
@@ -48,10 +49,10 @@ var Node = React.createClass({
             index: childIndex,
             key: childIndex.id,
             dragging: dragging,
-            registerNode: this.props.registerNode,
-            paddingLeft: this.props.paddingLeft,
-            onCollapse: this.props.onCollapse,
-            onDragStart: this.props.onDragStart });
+            registerNode: _this.props.registerNode,
+            paddingLeft: _this.props.paddingLeft,
+            onCollapse: _this.props.onCollapse,
+            onDragStart: _this.props.onDragStart });
         })
       );
     }
