@@ -29,7 +29,7 @@ var Node = React.createClass({
     var tree = this.props.tree;
     var dragging = this.props.dragging;
     var childrenStyles = {};
-    let _this = this;
+    var _this = this;
 
     if (index.children && index.children.length) {
       if (index.node.collapsed) {
