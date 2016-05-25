@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/pqx/react-ui-tree",
   "peerDependencies": {
-    "react": ">0.13.3"
+    "react": "0.14.8",
+    "react-dom": "0.14.8"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
