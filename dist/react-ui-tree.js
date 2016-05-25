@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var Tree = require('./tree');
 var Node = require('./node');
 
@@ -241,7 +242,7 @@ module.exports = React.createClass({
 
     if ((options.newIndex || {}).next) {
       dragElement.classList.add("hidden-until-drag-end");
-      nodeAtNewIndex = this.getNodeByIndex(options.newIndex.next).getDOMNode();
+      nodeAtNewIndex = ReactDOM.findDOMNode(this.getNodeByIndex(options.newIndex.next));
       listNode = nodeAtNewIndex.parentNode;
 
       listNode.insertBefore(placeholderNode, nodeAtNewIndex);
