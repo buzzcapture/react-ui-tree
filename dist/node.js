@@ -1,7 +1,9 @@
 var cx = require('classnames');
 var React = require('react');
 
-var Node = React.createClass({
+var createReactClass = require("create-react-class");
+
+var Node = createReactClass({
   displayName: 'UITreeNode',
 
   componentDidMount: function () {

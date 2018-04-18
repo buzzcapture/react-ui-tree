@@ -4,8 +4,9 @@ var Tree = require('../lib/react-ui-tree.js');
 require('../lib/react-ui-tree.less');
 require('./theme.less');
 require('./app.less');
+var createReactClass = require("create-react-class");
 
-var App = React.createClass({
+var App = createReactClass({
   getInitialState() {
     return {
       active: null,

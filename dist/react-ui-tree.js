@@ -2,8 +2,9 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Tree = require('./tree');
 var Node = require('./node');
+var createReactClass = require("create-react-class");
 
-module.exports = React.createClass({
+module.exports = createReactClass({
   displayName: 'UITree',
 
   propTypes: {
