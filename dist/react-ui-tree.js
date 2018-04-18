@@ -7,13 +7,13 @@ var createReactClass = require("create-react-class");
 module.exports = createReactClass({
   displayName: 'UITree',
 
-  propTypes: {
-    tree: React.PropTypes.object.isRequired,
-    paddingLeft: React.PropTypes.number,
-    renderNode: React.PropTypes.func.isRequired,
-    noDrag: React.PropTypes.bool,
-    noDragClassNames: React.PropTypes.array
-  },
+  // propTypes: {
+  //   tree: React.PropTypes.object.isRequired,
+  //   paddingLeft: React.PropTypes.number,
+  //   renderNode: React.PropTypes.func.isRequired,
+  //   noDrag: React.PropTypes.bool,
+  //   noDragClassNames: React.PropTypes.array
+  // },
 
   getDefaultProps: function getDefaultProps() {
     return {
